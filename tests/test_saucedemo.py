@@ -1,4 +1,5 @@
 import pytest
+import time
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -16,20 +17,30 @@ PASSWORD = "secret_sauce"
 def driver():
     driver = get_driver()
     yield driver
+
+    # Mantiene el navegador abierto al finalizar cada test
+    time.sleep(5)
+
     driver.quit()
 
 
 def login(driver):
 
     driver.get(URL)
+    time.sleep(2)
 
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, "user-name"))
     )
 
     driver.find_element(By.ID, "user-name").send_keys(USER)
+    time.sleep(1)
+
     driver.find_element(By.ID, "password").send_keys(PASSWORD)
+    time.sleep(1)
+
     driver.find_element(By.ID, "login-button").click()
+    time.sleep(3)
 
     WebDriverWait(driver, 10).until(
         EC.url_contains("inventory.html")
@@ -43,10 +54,14 @@ def test_login_exitoso(driver):
     assert "inventory.html" in driver.current_url
     assert "Swag Labs" in driver.title
 
+    time.sleep(3)
+
 
 def test_catalogo_productos(driver):
 
     login(driver)
+
+    time.sleep(2)
 
     titulo = driver.find_element(
         By.CLASS_NAME,
@@ -88,6 +103,8 @@ def test_catalogo_productos(driver):
     print(f"Producto: {primer_nombre}")
     print(f"Precio: {primer_precio}")
 
+    time.sleep(5)
+
 
 def test_carrito(driver):
 
@@ -99,6 +116,8 @@ def test_carrito(driver):
     )
 
     boton_agregar.click()
+
+    time.sleep(2)
 
     contador = driver.find_element(
         By.CLASS_NAME,
@@ -112,9 +131,13 @@ def test_carrito(driver):
         "shopping_cart_link"
     ).click()
 
+    time.sleep(3)
+
     producto_carrito = driver.find_element(
         By.CLASS_NAME,
         "inventory_item_name"
     )
 
     assert producto_carrito.is_displayed()
+
+    time.sleep(4)
